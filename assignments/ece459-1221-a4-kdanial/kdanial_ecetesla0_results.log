@@ -1,0 +1,23 @@
+setting up code of kdanial on ecetesla0
+run cargo
+run hyperfine
+param: 160 4 4000 6 6
+Benchmark #1: target/release/lab4 160 4 4000 6 6
+  Time (mean ± σ):      23.9 ms ±   1.5 ms    [User: 129.1 ms, System: 6.4 ms]
+  Range (min … max):    21.2 ms …  32.8 ms    89 runs
+ 
+param: 160 4 50000 6 6
+Benchmark #1: target/release/lab4 160 4 50000 6 6
+  Time (mean ± σ):     298.7 ms ±  11.3 ms    [User: 616.6 ms, System: 15.1 ms]
+  Range (min … max):   280.8 ms … 321.4 ms    10 runs
+ 
+param: 160 4 50000 10 10
+Benchmark #1: target/release/lab4 160 4 50000 10 10
+  Time (mean ± σ):     308.1 ms ±   7.8 ms    [User: 748.3 ms, System: 15.3 ms]
+  Range (min … max):   297.2 ms … 320.3 ms    10 runs
+ 
+param: 160 4 100000 10 10
+Benchmark #1: target/release/lab4 160 4 100000 10 10
+  Time (mean ± σ):     582.3 ms ±  19.6 ms    [User: 1.342 s, System: 0.022 s]
+  Range (min … max):   548.5 ms … 602.8 ms    10 runs
+ 

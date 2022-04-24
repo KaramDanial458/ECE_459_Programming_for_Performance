@@ -1,0 +1,4 @@
+Benchmark #1: target/release/lab4
+  Time (mean ± σ):     359.2 ms ±  24.0 ms    [User: 1.709 s, System: 0.183 s]
+  Range (min … max):   328.0 ms … 408.5 ms    10 runs
+ 

@@ -1,0 +1,8 @@
+[package]
+name="use-curl-multi"
+version="0.1.0"
+edition='2018'
+
+[dependencies]
+curl = "0.4.33"
+

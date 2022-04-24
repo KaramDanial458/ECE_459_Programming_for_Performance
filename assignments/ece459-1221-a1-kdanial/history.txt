@@ -1,0 +1,101 @@
+#V2
+load-defaults
+deps-available 4g8
+quit
+load-defaults
+deps-available 4g8
+quit
+load-defaults
+deps-available 4g8
+quit
+load-defaults
+deps-available 4g8
+quit
+load-defaults
+deps-available 4g8
+quit
+load-defaults
+deps-available 4g8
+quit
+load-defaults
+deps-available 4g8
+quit
+load-defaults
+deps-available 4g8
+quit
+load-defaults
+deps-available 4g8
+quit
+load-defaults
+transitive-dep-solution
+transitive-dep-solution bash
+transitive-dep-solution 4g8
+transitive-dep-solution libzydis-dev
+load-defaults
+transitive-dep-solution libzydis-dev
+load-defaults
+how-to-install 3depict
+quit
+load-defaults
+load-csv data/packages.csv
+enq-verify bash
+enq-verify 0ad
+enq-verify libc6 28
+execute
+quit
+load-defaults
+load-csv data/packages.csv
+enq-verify bash
+enq-verify 0ad
+enq-verify libc6 28
+execute
+quit
+load-csv data/packages.csv
+enq-verify bash
+enq-verify libc6 28
+enq-verify 0ad
+execute
+quit
+load-csv data/packages.csv
+enq-verify bash
+enq-verify 0ad
+enq-verify libc6 28
+execute
+quit
+load-csv data/packages.csv
+enq-verify bash
+enq-verify 0ad
+enq-verify libc6 28
+execute
+quit
+load-defaults
+deps-available 3depics
+deps-available 3depicts
+deps-available 3depict
+how-to-install 3depict
+transitive-dep-solution libzydis-dev
+clear
+transitive-dep-solution libzydis-dev
+deps-available libzydis-dev
+deps-available libzycore-dev
+deps-available libzycore1.1
+deps-available libc6
+deps-available libzydis3.2
+quit
+load-defaults
+transitive-dep-solution libzydis-dev
+enq-verify libc6 28
+quit
+load-defaults
+how-to-install 3depict
+git status
+enq-verify libc6 28
+quit
+load-defaults
+deps-available 4g8
+transitive-dep-solution libzydis-dev
+how-to-install 3depict
+enq-verify bash
+enq-verify 0ad
+enq-verify libc6 28
+quit

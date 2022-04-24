@@ -1,0 +1,64 @@
+\documentclass[12pt]{article}
+
+\usepackage[letterpaper, hmargin=0.75in, vmargin=0.75in]{geometry}
+\usepackage{float}
+\usepackage[T1]{fontenc}
+
+\pagestyle{empty}
+
+\title{ECE 459: Programming for Performance\\Assignment 2}
+\author{Karam Danial}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Message Passing}
+\subsection{Logic}
+\hspace{4mm} Since a single-threaded implementation of JWT verification is very inefficient, consider implementing the
+solver with multiple threads and message passing using channels to communicate between all threads. Intuitively, a set
+of threads can be called at different initial states (i.e. a different starting character from a partitioned set of chars
+from DEFAULT\_ALPHABETS) and attempt to produce the token. The threads can communicate with each other via message-passing
+through two channels: one channel sending and receiving to each thread and one communicating with the main thread to
+receive the answer. The first channel will notify other threads to terminate in case of a solution, and the second channel
+will pass the answer outside the thread spawn handler.
+
+\subsection{Implementation}
+\hspace{4mm} First, determine the number of threads to run by calling num\_cpus::get() as recommended in the lab manual.
+This will spawn one thread per available CPU. Second, I partition DEFAULT\_ALPHABETS by chunks according to the number of
+threads via the chunks() function. This way, each thread gets a set of unique characters to traverse and check; ultimately,
+dividing the characters amongst our threads will decrease expedite the check\_all process. Now that the code assigns a set
+of characters for each thread to iterate through and verify, we must implement the message-passing functionality for threads
+to notify each other in case of a solution - or otherwise return None. Two channels are set up to communicate (1) amongst
+threads and (2) to the main thread. Thread\_sender is used to send a string "Answer Found!" in case check\_all returns an
+answer. Thread\_receiver is then used by each thread to check if the channel is empty or not. If the channel is empty,
+threads continue to work for a solution. In contrast, a non-empty channel tells an on-going thread that we have found a
+solution, please terminate. Similarly, when check\_all finds a solution, main\_sender passes its solution, which is later
+received after each thread handler is joined and printed to the console. Obviously, if the main\_receiver still contains
+None, "No answer found" is printed to the console.
+
+\hspace{4mm} Note, calling an implementation of JwtSolver in multi-threaded solution, a new instance of JwtSolver is
+passed into each thread spawn. Therefore, we assign the cloning attribute to the solver struct by inserting
+"#[derive(Clone)]" above the struct's definition.
+
+\section{Shared Memory}
+\subsection{Logic}
+\hspace{4mm} The overall logic for implementing multi-threaded JWT validation with shared memory is very similar to message-
+passing. We still use the same number of threads as available CPUs and the same alphabet-partitioning system. Thread spawning
+is also identical to that of the previous implementation. However, instead of using channels, a buffer declared outside the
+for loop is declared and appropriately controlled by a MutexGuard.
+
+\subsection{Implementation}
+\hspace{4mm} The newly declared buffer of type Arc<Mutex<Option<Vec<u8>\hspace{0.25mm}>\hspace{0.25mm}>\hspace{0.25mm}>
+is declared and used by each thread to write a solution or check the presence of a solution. With each iteration, access
+to this buffer is locked by a MutexGuard. This mutex ensures only one thread is within the critical section and interacting
+with the buffer at a time. Similar to message-passing, if one thread generates a valid JWT, the result is written into the
+buffer. At the beginning of each character state (i.e. the for loop iterating through character chunks), the thread checks
+if the buffer is empty. If the buffer is empty, the thread continues to find a solution. Otherwise, the thread terminates,
+and the cycle continues until all other threads finish executing or recognize a solution and terminate. To access the buffers
+contents, Arc::try\_unwrap(buffer).unwrap() and into\_inner().unwrap(). Of course, a match case is used to determine if in
+fact we did get a valid answer to display. Naturally, "No answer found" is printed in the absence of a non-None result.
+
+\end{document}
+

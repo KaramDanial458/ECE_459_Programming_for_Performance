@@ -1,0 +1,371 @@
+\input{configuration}
+
+\title{Lecture 25 --- Profiling }
+
+\author{Patrick Lam \\ \small \texttt{patrick.lam@uwaterloo.ca}}
+\institute{Department of Electrical and Computer Engineering \\
+  University of Waterloo}
+\date{\today}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+
+ \end{frame}
+
+
+\begin{frame}
+\frametitle{Remember the Initial Quiz}
+
+
+Think back: what operations are fast and what operations are not?
+
+Takeaway: our intuition  is often wrong. 
+
+Not just at a macro level, \\
+but at a micro level. 
+
+You may be able to narrow down that this computation of $x$ is slow, \\
+but if you examine it carefully\ldots what parts of it are slow?
+
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Premature Optimization}
+
+\vspace*{.5cm}
+
+\begin{quote}
+\textit{Programmers waste enormous amounts of time thinking about, or worrying about, the speed of noncritical parts of their programs, and these attempts at efficiency actually have a strong negative impact when debugging and maintenance are considered. We should forget about small efficiencies, say about 97\% of the time: premature optimization is the root of all evil. Yet we should not pass up our opportunities in that critical 3\%.}
+\end{quote}
+	\hfill -- Donald Knuth
+
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{That Saying You Were Expecting}
+
+
+\begin{changemargin}{1.5cm}
+Feeling lucky? \\
+Maybe you optimized a slow part. 
+
+\begin{center}
+	\includegraphics[width=0.4\textwidth]{images/feellucky.jpg}
+\end{center}
+
+To make your programs or systems fast, \\
+you need to find out what is currently slow and improve it (duh!). 
+
+Up until now, it's mostly been about \\
+\qquad ``let's speed this up''.\\
+We haven't taken much time to decide what we should speed up.
+\end{changemargin}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Basic Overview}
+
+
+\begin{changemargin}{1.5cm}
+General idea:\\
+\qquad collect data on what parts of the code\\
+\qquad are taking up most of the time.
+
+\begin{itemize}
+\item What functions get called?
+\item How long do functions take?
+\item What's using memory?
+\end{itemize}
+\end{changemargin}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{\texttt{printf}}
+
+
+\begin{changemargin}{1.5cm}
+There is always the ``informal'' way: ``debug'' by print statements.
+
+On entry to \texttt{foo}, log ``entering function foo'', plus timestamp.
+
+On exit, log ``exiting foo'', also with timestamp.
+\end{changemargin}
+
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{images/stringerbell.jpg}
+\end{center}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Console Profiling}
+
+
+\begin{changemargin}{1cm}
+Kind of works, and [JZ] has used it... But this approach is not necessarily good.  
+
+This is ``invasive'' profiling---change the source code of the program to add instrumentation (log statements). 
+
+Plus we have to do a lot of manual accounting.
+
+Doesn't really scale.
+\end{changemargin}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Wizardry!}
+
+
+\begin{changemargin}{2cm}
+Like debugging: if you get to be a wizard you can maybe do it by code inspection.
+
+\begin{center}
+	\includegraphics[width=0.4\textwidth]{images/miracle.jpeg}
+\end{center}
+
+But speculative execution inside your head is harder for perf than debugging.
+
+So: we want to use tools \\ 
+and do this in a methodical way.
+\end{changemargin}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Introduction to Profiling}
+
+
+
+\begin{changemargin}{1.5cm}
+    So far we've been looking at small problems.\\[1em]
+    Must {\bf profile} to see what's slow in a
+      large program.\\[1em]
+    Two main outputs:
+      \begin{itemize}
+        \item flat;
+        \item call-graph.
+      \end{itemize}
+
+
+
+    Two main data gathering methods:
+      \begin{itemize}
+        \item statistical;
+        \item instrumentation.
+      \end{itemize}
+   \end{changemargin}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Profiler Outputs}
+
+
+\begin{changemargin}{.5cm}
+  
+  {\bf Flat Profiler:}
+
+  \begin{itemize}
+    \item Only computes average time in a particular function.
+    \item Does not include other (useful) information (callees).
+  \end{itemize}
+
+~\\[1em]
+
+  {\bf Call-graph Profiler:}
+
+  \begin{itemize}
+    \item Computes call times.
+    \item Reports frequency of function calls.
+    \item Gives a call graph: who called what function?
+  \end{itemize}
+  \end{changemargin}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Data Gathering Methods}
+
+
+\begin{changemargin}{1.5cm}
+  {\bf Statistical:}
+
+  Mostly, take samples of the system state, that is:
+  \begin{itemize}
+    \item every 100ms, check the system state.
+    \item will cause some slowdown, but not much.
+  \end{itemize}
+~\\[1em]
+
+  {\bf Instrumentation:}\\
+  Add instructions at specified program points:
+  \begin{itemize}
+    \item can do this at compile time or run time (expensive);
+    \item can instrument either manually or automatically;
+    \item like conditional breakpoints.
+  \end{itemize}
+  \end{changemargin}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Guide to Profiling}
+
+  
+
+\begin{changemargin}{1cm}
+  When writing large software projects:\\[1em]
+
+     $\bullet$ First, write clear and concise code. \\
+      \qquad Don't do premature optimizations---\\
+      \qquad focus on correctness.\\
+     $\bullet$ Profile to get a baseline of your performance:\\[0em]
+      \begin{itemize}
+        \item allows you to easily track any performance changes;
+        \item allows you to re-design your program before it's too late.
+      \end{itemize}
+  Focus your optimization efforts on the code that matters.
+  \end{changemargin}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Things to Look For}
+
+
+\begin{changemargin}{1.5cm}
+  
+    Good signs:\\[0em]
+
+    \begin{itemize}
+      \item Time is spent in the right part of the system.
+      \item Most time should not be spent handling errors;\\
+ in non-critical code; or in exceptional cases.
+      \item Time is not unnecessarily spent in OS.
+    \end{itemize}
+    \end{changemargin}
+    
+    \begin{center}
+	\includegraphics[width=0.5\textwidth]{images/tobermory.jpg}\\
+	\hfill Kitchener driver follows GPS directions right into Lake Huron...
+ 	\end{center}
+    
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}
+\frametitle{Development vs Prod}
+
+You can always profile your systems in development, but that might not
+help with complexities in production. 
+
+The constraints on profiling 
+production systems are that the profiling must not affect the system's
+performance or reliability.
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Per-Process}
+
+ We'll first talk about {\tt perf}, the profiler 
+recommended for use with Rust. This is Linux-specific, though.
+
+The \texttt{perf} tool is an interface to the Linux kernel's built-in
+sample-based profiling using CPU counters. 
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Previous Offering Profiling}
+
+\begin{lstlisting}[basicstyle=\scriptsize]
+[plam@lynch nm-morph]$ perf stat ./test_harness
+
+ Performance counter stats for './test_harness':
+
+       6562.501429 task-clock                #    0.997 CPUs utilized          
+               666 context-switches          #    0.101 K/sec                  
+                 0 cpu-migrations            #    0.000 K/sec                  
+             3,791 page-faults               #    0.578 K/sec                  
+    24,874,267,078 cycles                    #    3.790 GHz                     [83.32%]
+    12,565,457,337 stalled-cycles-frontend   #   50.52% frontend cycles idle    [83.31%]
+     5,874,853,028 stalled-cycles-backend    #   23.62% backend  cycles idle    [66.63%]
+    33,787,408,650 instructions              #    1.36  insns per cycle        
+                                             #    0.37  stalled cycles per insn [83.32%]
+     5,271,501,213 branches                  #  803.276 M/sec                   [83.38%]
+       155,568,356 branch-misses             #    2.95% of all branches         [83.36%]
+
+       6.580225847 seconds time elapsed
+\end{lstlisting} %$
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Do it with Rust}
+
+The first thing to do is to compile with debugging info, go to your \texttt{Cargo.toml} file and add:
+\begin{verbatim}
+[profile.release]
+debug = true
+\end{verbatim}
+
+This means that \texttt{cargo build --release} will now compile the version with debug info.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{I've got a Cunning Plan}
+
+Run the program using \texttt{perf record}, which will sample the execution of the program to produce a data set.
+
+
+Then there are three ways we can look at the code: \texttt{perf report}, \texttt{perf annotate}, and a flamegraph.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{CLion}
+
+During development of some of the code exercises, I used the CLion built-in profiler for this purpose. 
+
+It generates a flamegraph for you too, and I'll show that for how to create the flamegraph as well.
+
+
+\end{frame}
+
+
+
+\end{document}
+

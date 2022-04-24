@@ -1,0 +1,446 @@
+\input{configuration}
+
+\title{Lecture 30 --- Clusters \& Cloud Computing}
+
+\author{Patrick Lam \\ \small \texttt{patrick.lam@uwaterloo.ca}}
+\institute{Department of Electrical and Computer Engineering \\
+  University of Waterloo}
+\date{\today}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+
+ \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{More, More, More}
+
+  
+
+  So far, we've seen how to make things fast on one computer:
+\begin{itemize}
+\item threads;
+\item compiler optimizations;
+\item GPUs.
+\end{itemize}
+  To get a lot of bandwidth, though, you need lots of computers, \\
+   \qquad (if you're lucky and the problem allows!)\\[1em]
+   
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{More, More, More}
+  
+  \begin{center}
+	\includegraphics[width= \textwidth]{images/servers.jpeg}
+\end{center}
+
+  Today: programming for performance with multiple computers.
+
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Key Idea: Explicit Communication}
+
+  Rust encourages message-passing, but a lot of your previous experience when working with C may have centred around shared memory systems.
+  
+	Sometimes: no choice! Such as GPU.
+
+  Recently, GPU programming: explicitly copy data.
+
+Communication over the network is much more expensive than within the same system.
+
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{What is MPI?}
+
+\begin{center}
+	\includegraphics[width=0.3\textwidth]{images/mpi.png}
+\end{center}
+  {\bf Message Passing Interface:}
+
+  A language-independent communation protocol\\ for parallel computers.
+
+This is, unfortunately, no longer the way. 
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\begin{frame}
+\frametitle{REST}
+
+We've already seen asynchronous I/O using HTTP (curl) $\rightarrow$ REST!
+
+You may have also learned about sockets $\rightarrow$ too low level.
+
+The REST API approach is at a reasonable level of abstraction. 
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Synchronous REST}
+
+REST APIs are often completely synchronous, but don't have to be:
+
+You can set up  callbacks or check back later.
+
+The remote machine has to be available at the time of each call...
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Kafka}
+
+\begin{center}
+	\includegraphics[width=0.4\textwidth]{images/kafkalogo.png}
+\end{center}
+
+
+Apache Kafka: a self-described ``distributed streaming platform''.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Kafka}
+
+Producers write a record into a topic and consumers take the item from the topic and doing something useful with it.
+
+A message remains available for a fixed period of time and can be replayed if needed.
+
+Publish-subscribe model.
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Change is Hard}
+
+Kafka's basic strategy is to write things into an immutable log. 
+
+The log is split into different partitions.
+
+Consumers read from each one of the partitions and writes down its progress.
+
+\begin{center}
+	\includegraphics[width=0.7\textwidth]{images/kafka-partition.png}
+\end{center}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Kafka Provisioning}
+
+We can provision the parallelism that we want, and the logic for the broker.
+
+Consumers can take items and deal with them at their own speed.
+
+Messages are removed from the topic based on their expiry.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Hurry up and Queue}
+
+In something like a standard queue, there's a little bit of pressure to get items out of the queue quickly.
+
+You might think that it's a solution to take the item out of the queue in one transaction and then process it later.
+
+That's okay only if you've successfully saved it to a database or other persistent storage. 
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Alternatives: SQS and SNS}
+
+SNS (Simple Notification Service) and SQS (Simple Queueing Service). 
+
+They are, broadly speaking, just other ways to decouple the communication of your programs.
+
+SNS is good for sending lots of messages to multiple receivers.
+
+SQS is more for batches of work where it's not particularly time-sensitive and the item will be consumed by a worker.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{How would you know the difference?}
+\begin{center}
+	\includegraphics[width=0.6\textwidth]{images/thecloud.jpg}
+\end{center}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Using a Cluster}
+
+  
+    Historically:
+\begin{itemize}
+  \item find \$\$\$;
+  \item buy and maintain pile of expensive machines.
+\end{itemize}
+
+  Not anymore! \\[1em]
+
+  We'll talk about Amazon's Elastic Compute Cloud (EC2)\\ and
+  principles behind it.
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Evolution of servers}
+
+  
+
+You want a server on the Internet.
+\begin{itemize}
+\item 
+  Once upon a time: physical machine; shared hosting.
+\item Virtualization:
+\item Clouds
+\end{itemize}
+
+  Servers typically share persistent storage, also in
+  the cloud. 
+
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Paying for Computes}
+
+  
+Cloud computing: pay by the number of
+instances that you've started up.
+
+
+Providers offer different instance sizes: vary in cores, memory, GPU...
+
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Launching Instances}
+  
+  \begin{center}
+	\includegraphics[width=0.4\textwidth]{images/kirk.png}
+\end{center}
+
+  
+Need more computes? Launch an instance!\\[1em]
+
+Input: Virtual Machine image.\\[1em]
+
+Mechanics: use a command-line or web-based tool.\\[1em]
+
+New instance gets an IP address and is network-accessible. \\
+You have full root access to that instance.
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{What to Launch?}
+
+  
+Amazon provides public images:
+\begin{itemize}
+\item different Linux distributions;
+\item Windows Server; and
+\item OpenSolaris (maybe not anymore?). 
+\end{itemize}
+
+You can build an image which contains software you
+want, including Hadoop and OpenMPI.
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Cleanup}
+
+  
+Presumably you don't want to pay forever for your instances.\\[1em]
+
+When you're done with an instance:
+
+\begin{center}
+	\includegraphics[width=0.3\textwidth]{images/shutitdown.jpg}
+\end{center}
+
+
+All data on instance goes away.
+  
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Data Storage}
+  
+To keep persistent results:
+\begin{itemize}
+\item mount a storage device,
+also on the cloud (e.g. Amazon Elastic Block Storage); or, 
+\item connect to a database on a persistent server (e.g. Amazon SimpleDB or
+Relational Database Service); or, 
+\item you can store files on the Web (e.g. Amazon S3). 
+\end{itemize}
+  
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}
+\frametitle{Clusters vs. Laptops}
+
+
+\begin{changemargin}{1cm}
+Key idea: scaling to big data systems \\
+introduces substantial overhead. \\[1em]
+Up next: Laptop vs. 128-core big data systems.
+\end{changemargin}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Don't Guess, Measure}
+
+
+\begin{changemargin}{1cm}
+Are big data systems obviously good?\\
+Have we measured (the right thing)?\\[1em]
+
+The important metric is not just scalability; \\
+absolute performance matters a lot. 
+
+\end{changemargin}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Why Scale?}
+
+
+\begin{changemargin}{1cm}
+Don't want: scaling up to $n$ systems \\
+to deal with complexity of scaling up to $n$.\\[1em]
+
+\begin{center}
+	\includegraphics[width=0.3\textwidth]{images/wilde.jpg}
+\end{center}
+
+Or, as Oscar Wilde put it: \\
+``The bureaucracy is expanding to meet the needs of the expanding bureaucracy.''
+\end{changemargin}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Methodology}
+
+
+\begin{changemargin}{1cm}
+Compare: competent single-threaded implementation vs. top
+big data systems. 
+
+Domain: graph processing
+algorithms---
+PageRank and graph connectivity \\
+(bottleneck is label propagation). 
+
+Subjects: graphs with billions of edges\\
+(a few
+GB of data.)
+\end{changemargin}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Results}
+
+\begin{center}
+	\includegraphics[width=0.80\textwidth]{images/pagerank.png}
+\end{center}
+
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Takeaways}
+
+
+\begin{changemargin}{1cm}
+
+\begin{itemize}
+\item    ``If you are going to use a big data system for yourself, see if it is faster than your laptop.''\\[1em]
+\item    ``If you are going to build a big data system for others, see that it is faster than my laptop.''
+\end{itemize}
+
+\end{changemargin}
+\end{frame}
+
+
+
+
+\begin{frame}
+\frametitle{Movie Hour, featuring NoSQL Bane}
+
+Let's take a humorous look at cloud computing: James Mickens' session from Monitorama PDX 2014. 
+
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{images/bane.jpg}
+\end{center}
+
+\begin{center}
+\url{https://vimeo.com/95066828}
+\end{center}
+
+
+\end{frame}
+
+\end{document}
+

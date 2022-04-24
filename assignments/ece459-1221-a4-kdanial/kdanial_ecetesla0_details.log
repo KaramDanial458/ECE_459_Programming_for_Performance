@@ -1,0 +1,86 @@
+   Compiling autocfg v1.0.0
+   Compiling cfg-if v0.1.10
+   Compiling maybe-uninit v2.0.0
+   Compiling lazy_static v1.4.0
+   Compiling typenum v1.12.0
+   Compiling version_check v0.9.2
+   Compiling scopeguard v1.1.0
+   Compiling opaque-debug v0.3.0
+   Compiling cpuid-bool v0.1.2
+   Compiling hex v0.4.2
+   Compiling crossbeam-utils v0.7.2
+   Compiling memoffset v0.5.5
+   Compiling crossbeam-epoch v0.8.2
+   Compiling generic-array v0.14.4
+   Compiling crossbeam-queue v0.2.3
+   Compiling crossbeam-channel v0.4.3
+   Compiling crossbeam-deque v0.7.3
+   Compiling crossbeam v0.7.3
+   Compiling digest v0.9.0
+   Compiling block-buffer v0.9.0
+   Compiling sha2 v0.9.1
+   Compiling lab4 v0.1.0 (/home/h365chen/ece459w22/tograde)
+warning: unused import: `Write`
+ --> src/student.rs:5:23
+  |
+5 | use std::io::{stdout, Write};
+  |                       ^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `handle`
+  --> src/student.rs:54:25
+   |
+54 |                 let mut handle = stdout.lock();
+   |                         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_handle`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `other`
+  --> src/student.rs:87:25
+   |
+87 |                         other => {}
+   |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_other`
+
+warning: variable does not need to be mutable
+  --> src/student.rs:54:21
+   |
+54 |                 let mut handle = stdout.lock();
+   |                     ----^^^^^^
+   |                     |
+   |                     help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` on by default
+
+warning: field is never read: `idea_checksum`
+  --> src/idea.rs:19:5
+   |
+19 |     idea_checksum: Checksum,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: field is never read: `id`
+ --> src/student.rs:9:5
+  |
+9 |     id: usize,
+  |     ^^^^^^^^^
+
+warning: field is never read: `skipped_idea`
+  --> src/student.rs:12:5
+   |
+12 |     skipped_idea: bool,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: `lab4` (lib) generated 7 warnings
+warning: unused import: `package::Package`
+ --> src/main.rs:3:58
+  |
+3 |     checksum::Checksum, idea::Idea, idea::IdeaGenerator, package::Package, package::PackageDownloader, student::Student, Event,
+  |                                                          ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: `lab4` (bin "lab4") generated 1 warning
+    Finished release [optimized + debuginfo] target(s) in 7.33s
+ 

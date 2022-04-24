@@ -1,0 +1,6 @@
+#CHANGES
+
+The changes I've made for output verification in question 5 part 3 is printing only the first 100 vector values. Typically when we are verifying outputs of a program, we do not look
+at every output if the output is massive; we usually detect a logical fault within the first couple test cases and debug from there. Therefore, I decided my program can decrease
+the print time by simply decreasing the amount of result items printed to 100 (otherwise print the whole resul). According to the two uploaded images, the `printtime` overhead was
+significantly reduced from 1.729 seconds to 1.15 milliseconds while running on eceubuntu1.
